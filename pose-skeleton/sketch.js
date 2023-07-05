@@ -6,11 +6,12 @@ let skeleton;
 let squatCount = 0; // 스쿼트 카운트 변수
 let squatThreshold = 0.4; // 스쿼트 동작 인식 임계값
 
-// 이전 스쿼트 동작 상태
+// 이전 스쿼트 동작 상태와 위치
 let prevSquatState = false;
+let currentSquatState = false;
 
 function setup() {
-  createCanvas(1240, 880);
+  createCanvas(640, 480);
   video = createCapture(VIDEO);
   video.hide();
   poseNet = ml5.poseNet(video, modelLoaded);
@@ -27,7 +28,6 @@ function gotPoses(poses) {
     let rightKnee = pose.rightKnee;
     let leftHip = pose.leftHip;
     let rightHip = pose.rightHip;
-    let currentSquatState = false; // 현재 스쿼트 동작 상태
 
     if (
       leftKnee.confidence > squatThreshold &&
@@ -36,7 +36,7 @@ function gotPoses(poses) {
       rightHip.confidence > squatThreshold &&
       leftKnee.y > leftHip.y &&
       rightKnee.y > rightHip.y &&
-      leftHip.y > rightHip.y // 추가 조건: 왼쪽 엉덩이가 오른쪽 엉덩이보다 아래에 위치해야 함
+      leftHip.y > rightHip.y
     ) {
       currentSquatState = true;
       // 이전 스쿼트 동작 상태가 false인 경우에만 카운트 증가
@@ -47,6 +47,8 @@ function gotPoses(poses) {
         let countElement = document.getElementById('count');
         countElement.textContent = 'Squat Count: ' + squatCount;
       }
+    } else {
+      currentSquatState = false;
     }
 
     prevSquatState = currentSquatState;
@@ -84,6 +86,16 @@ function draw() {
       strokeWeight(2);
       stroke(255);
       line(a.position.x, a.position.y, b.position.x, b.position.y);
+    }
+
+    // 스쿼트 상태 표시
+    let statusElement = document.getElementById('status');
+    if (currentSquatState && !prevSquatState) {
+      statusElement.textContent = 'Status: Down';
+    } else if (!currentSquatState && prevSquatState) {
+      statusElement.textContent = 'Status: Up';
+    } else {
+      statusElement.textContent = 'Status: -';
     }
   }
 }
