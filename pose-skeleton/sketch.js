@@ -10,7 +10,7 @@ let squatThreshold = 0.4; // 스쿼트 동작 인식 임계값
 let prevSquatState = false;
 
 function setup() {
-  createCanvas(640, 480);
+  createCanvas(1240, 880);
   video = createCapture(VIDEO);
   video.hide();
   poseNet = ml5.poseNet(video, modelLoaded);
